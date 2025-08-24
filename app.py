@@ -342,15 +342,15 @@ async def stop_crawl(crawl_id: str):
     """Stop a running crawl."""
     if crawl_id not in active_crawls:
         raise HTTPException(status_code=404, detail="Crawl not found")
-    
+
     crawl_info = active_crawls[crawl_id]
     task = crawl_info.get("task")
-    
+
     if task and not task.done():
         task.cancel()
         active_crawls[crawl_id]["status"] = "stopped"
         return {"message": "Crawl stopped"}
-    
+
     return {"message": "Crawl was not running"}
 
 
@@ -359,25 +359,26 @@ async def download_results(crawl_id: str):
     """Download crawl results as a ZIP file."""
     if crawl_id not in active_crawls:
         raise HTTPException(status_code=404, detail="Crawl not found")
-    
+
     crawl_info = active_crawls[crawl_id]
-    
+
     if crawl_info["status"] != "completed":
         raise HTTPException(status_code=400, detail="Crawl not completed")
-    
+
     output_dir = crawl_info["output_dir"]
     if not output_dir.exists():
-        raise HTTPException(status_code=404, detail="Output directory not found")
-    
+        raise HTTPException(
+            status_code=404, detail="Output directory not found")
+
     # Create ZIP file
     temp_zip = crawl_info["temp_dir"] / f"site2md_export_{crawl_id}.zip"
-    
+
     with zipfile.ZipFile(temp_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file_path in output_dir.rglob('*'):
             if file_path.is_file():
                 arcname = file_path.relative_to(output_dir)
                 zipf.write(file_path, arcname)
-    
+
     return FileResponse(
         str(temp_zip),
         media_type="application/zip",
