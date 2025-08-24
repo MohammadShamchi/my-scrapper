@@ -1,6 +1,7 @@
 # Core dependencies for Site2MD web interface
 fastapi>=0.100.0
 uvicorn[standard]>=0.20.0
+gunicorn>=21.0.0
 jinja2>=3.1.0
 python-multipart>=0.0.6
 websockets>=12.0

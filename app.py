@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
 Simple FastAPI app for Site2MD web interface.
-This file can run directly without package import issues.
+This file exports the FastAPI app for Gunicorn to use.
 """
 
 import os
-import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
@@ -58,6 +57,8 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "site2md"}
 
+# For local development only
 if __name__ == "__main__":
+    import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
