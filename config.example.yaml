@@ -1,0 +1,222 @@
+# Site2MD Configuration Example
+# Copy this file to config.yaml and customize for your needs
+
+# Starting URLs for crawling (required)
+start_urls:
+  - https://example.com
+  # - https://docs.example.com
+  # - https://help.example.com
+
+# Crawling scope control
+scope:
+  # Allow crawling subdomains (www.example.com, api.example.com, etc.)
+  allow_subdomains: false
+  
+  # Include only URLs matching these regex patterns (empty = include all)
+  include: 
+    # - "docs"
+    # - "guides"
+    # - "api"
+    # - "help"
+  
+  # Exclude URLs matching these regex patterns
+  exclude:
+    # - "admin"
+    # - "private"
+    # - "temp"
+    # - "\.pdf$"
+
+# Crawling limits
+limits:
+  # Maximum number of pages to crawl
+  max_pages: 1000
+  
+  # Maximum crawl depth from start URLs
+  max_depth: 5
+
+# HTTP fetching configuration
+fetch:
+  # Number of concurrent HTTP requests
+  concurrency: 8
+  
+  # Request timeout in seconds
+  timeout: 20
+  
+  # Respect robots.txt (strongly recommended)
+  respect_robots: true
+  
+  # User agent string
+  user_agent: "site2md/1.0 (+https://yourdomain.example)"
+  
+  # Optional HTTP proxy configuration
+  # proxies:
+  #   http: "http://proxy.example.com:8080"
+  #   https: "https://proxy.example.com:8080"
+  
+  # Delay between requests in seconds (0 = no delay, use robots.txt crawl-delay if present)
+  delay_seconds: 0
+
+# Authentication configuration
+auth:
+  # Path to cookies file (JSON or Netscape format)
+  cookies_file: null
+  # cookies_file: "./cookies.json"
+  
+  # Path to custom headers file (JSON format)
+  headers_file: null
+  # headers_file: "./headers.json"
+  
+  # Path to Playwright authentication context directory
+  playwright_context_dir: null
+  # playwright_context_dir: "./.auth"
+
+# JavaScript rendering configuration (requires Playwright)
+render:
+  # Enable JavaScript rendering
+  enabled: false
+  
+  # Wait strategy: "networkidle", "load", "domcontentloaded"
+  wait_for: "networkidle"
+  
+  # Page load timeout in milliseconds
+  timeout: 15000
+
+# URL discovery settings
+discovery:
+  # Check sitemaps first (much faster than BFS crawling)
+  sitemap_first: true
+
+# Markdown conversion settings
+markdown:
+  # Add table of contents to each page
+  add_toc: true
+  
+  # Include YAML front matter with metadata
+  front_matter: true
+
+# Asset handling
+assets:
+  # Download and save page assets (images, etc.)
+  download: false
+  
+  # Minimum file size to download (bytes)
+  min_bytes: 1024
+  
+  # Directory name for assets (relative to output directory)
+  folder: "assets"
+
+# Incremental crawling
+incremental:
+  # Enable incremental mode (skip unchanged pages)
+  enabled: false
+
+# Output settings (typically overridden by CLI --out flag)
+output:
+  directory: "./export"
+
+# Example configurations for common scenarios:
+
+# ==========================================
+# DOCUMENTATION SITE (PUBLIC)
+# ==========================================
+# start_urls:
+#   - https://docs.example.com
+# scope:
+#   allow_subdomains: false
+#   include: ["docs", "guides", "tutorial"]
+#   exclude: ["admin", "edit"]
+# limits:
+#   max_pages: 2000
+#   max_depth: 6
+# fetch:
+#   concurrency: 8
+#   delay_seconds: 1
+# markdown:
+#   add_toc: true
+# assets:
+#   download: true
+
+# ==========================================
+# PRIVATE INTRANET (WITH COOKIES)
+# ==========================================
+# start_urls:
+#   - https://intranet.company.com
+# scope:
+#   allow_subdomains: true
+#   exclude: ["admin", "private"]
+# auth:
+#   cookies_file: "./company-cookies.json"
+# limits:
+#   max_pages: 500
+# fetch:
+#   concurrency: 4
+#   delay_seconds: 2
+
+# ==========================================
+# MODERN SPA (WITH RENDERING)
+# ==========================================
+# start_urls:
+#   - https://app.example.com
+# render:
+#   enabled: true
+#   wait_for: "networkidle"
+#   timeout: 20000
+# auth:
+#   playwright_context_dir: "./.auth/app"
+# limits:
+#   max_pages: 100
+# fetch:
+#   concurrency: 2
+#   delay_seconds: 1
+
+# ==========================================
+# API DOCUMENTATION (WITH HEADERS)
+# ==========================================
+# start_urls:
+#   - https://api.example.com/docs
+# auth:
+#   headers_file: "./api-headers.json"
+# scope:
+#   include: ["docs", "reference", "guides"]
+# markdown:
+#   add_toc: true
+# assets:
+#   download: false
+
+# ==========================================
+# LARGE SITE (CONSERVATIVE SETTINGS)
+# ==========================================
+# start_urls:
+#   - https://large-site.example.com
+# limits:
+#   max_pages: 5000
+#   max_depth: 8
+# fetch:
+#   concurrency: 3
+#   delay_seconds: 2
+#   timeout: 30
+# incremental:
+#   enabled: true
+# discovery:
+#   sitemap_first: true
+
+# ==========================================
+# LINKEDIN PROFILE (EXAMPLE - CHECK ToS!)
+# ==========================================
+# WARNING: Automated LinkedIn scraping may violate their Terms of Service.
+# Consider using LinkedIn's official Data Export instead.
+# If you proceed, only use your own account and accept full responsibility.
+#
+# start_urls:
+#   - https://www.linkedin.com/in/yourprofile
+# auth:
+#   playwright_context_dir: "./.auth/linkedin"
+# render:
+#   enabled: true
+# limits:
+#   max_pages: 50
+# fetch:
+#   concurrency: 1
+#   delay_seconds: 3
+# scope:
+#   include: ["in/yourprofile"]

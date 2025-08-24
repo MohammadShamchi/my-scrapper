@@ -1,0 +1,203 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "site2md"
+version = "1.0.0"
+description = "Production-grade CLI app that crawls websites and exports high-quality Markdown files"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Site2MD Team", email = "hello@site2md.com"},
+]
+keywords = ["web-scraping", "markdown", "cli", "crawling", "export"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.11"
+dependencies = [
+    # CLI and Configuration
+    "typer[all]>=0.9.0",
+    "rich>=13.0.0",
+    "pyyaml>=6.0.0",
+
+    # HTTP Client and Networking
+    "httpx[http2]>=0.25.0",
+    "anyio>=3.7.0,<4.0.0",
+    "brotli>=1.0.0",
+
+    # HTML Parsing and Content Extraction
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "trafilatura>=1.6.0",
+    "readability-lxml>=0.8.0",
+
+    # Markdown Conversion
+    "markdownify>=0.11.0",
+
+    # URL Processing
+    "tldextract>=5.0.0",
+    "urllib3>=2.0.0",
+
+    # Robots.txt Parsing (using Python's built-in urllib.robotparser for now)
+    "requests>=2.28.0",
+
+    # Database
+    "aiosqlite>=0.19.0",
+
+    # Utilities
+    "python-dateutil>=2.8.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+playwright = [
+    "playwright==1.40.0",
+]
+web = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.20.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.6",
+    "websockets>=12.0",
+]
+dev = [
+    # Testing
+    "pytest==7.4.3",
+    "pytest-asyncio==0.21.1",
+    "pytest-mock==3.12.0",
+    "pytest-cov==4.1.0",
+    "httpx-mock==0.10.1",
+
+    # Code Quality
+    "black==23.11.0",
+    "isort==5.12.0",
+    "flake8==6.1.0",
+    "mypy==1.7.1",
+
+    # Development Tools
+    "pre-commit==3.6.0",
+    "tox==4.11.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourorg/site2md"
+Repository = "https://github.com/yourorg/site2md"
+Documentation = "https://site2md.readthedocs.io"
+"Bug Tracker" = "https://github.com/yourorg/site2md/issues"
+
+[project.scripts]
+site2md = "site2md.cli.main:app"
+site2md-web = "site2md.web.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/site2md"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/config.example.yaml",
+]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["site2md"]
+
+# mypy configuration
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "trafilatura.*",
+    "readability.*",
+    "reppy.*",
+    "markdownify.*",
+    "tldextract.*",
+]
+ignore_missing_imports = true
+
+# pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

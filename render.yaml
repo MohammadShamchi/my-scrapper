@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: site2md
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHONUNBUFFERED
+        value: 1
+    scaling:
+      minInstances: 1
+      maxInstances: 1

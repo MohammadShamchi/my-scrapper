@@ -1,0 +1,26 @@
+{
+  "name": "Site2MD - Website to Markdown Converter",
+  "description": "Production-grade web application that converts any website to high-quality Markdown files with real-time progress tracking.",
+  "repository": "https://github.com/yourusername/site2md",
+  "logo": "https://site2md.example.com/static/logo.png",
+  "keywords": ["web-scraping", "markdown", "converter", "documentation", "scraper"],
+  "success_url": "/",
+  "env": {
+    "PYTHONUNBUFFERED": {
+      "description": "Disable Python output buffering",
+      "value": "1"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "stack": "heroku-22"
+}

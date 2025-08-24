@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site2MD - Website to Markdown Converter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .collapse-transition {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .collapse-hidden {
+            max-height: 0;
+            opacity: 0;
+        }
+        .collapse-visible {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-file-markdown text-white text-2xl"></i>
+                    <h1 class="text-2xl font-bold text-white">Site2MD</h1>
+                </div>
+                <div class="text-white text-sm opacity-90">
+                    Convert websites to beautiful Markdown files
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Main Form -->
+        <div class="bg-white rounded-xl card-shadow p-8 mb-6">
+            <form id="crawlForm" class="space-y-6">
+                <!-- URL Input -->
+                <div>
+                    <label for="url" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-globe mr-2 text-blue-500"></i>Website URL
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="url" 
+                            id="url" 
+                            name="url" 
+                            required
+                            placeholder="https://docs.example.com"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        >
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i class="fas fa-link text-gray-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Enter the starting URL to crawl</p>
+                </div>
+
+                <!-- Output Directory -->
+                <div>
+                    <label for="output_dir" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-folder mr-2 text-green-500"></i>Output Directory
+                    </label>
+                    <input 
+                        type="text" 
+                        id="output_dir" 
+                        name="output_dir" 
+                        value="./export"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                    <p class="text-sm text-gray-500 mt-1">Where to save the exported Markdown files</p>
+                </div>
+
+                <!-- Quick Options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="checkbox" id="javascript_heavy" name="javascript_heavy" class="rounded text-purple-600 focus:ring-purple-500">
+                        <div>
+                            <div class="font-medium text-gray-700">JavaScript Heavy</div>
+                            <div class="text-xs text-gray-500">Use browser rendering</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="checkbox" id="deep_search" name="deep_search" class="rounded text-blue-600 focus:ring-blue-500">
+                        <div>
+                            <div class="font-medium text-gray-700">Deep Search</div>
+                            <div class="text-xs text-gray-500">Include subdomains</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="checkbox" id="download_assets" name="download_assets" class="rounded text-orange-600 focus:ring-orange-500">
+                        <div>
+                            <div class="font-medium text-gray-700">Download Assets</div>
+                            <div class="text-xs text-gray-500">Save images & files</div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Advanced Options (Collapsible) -->
+                <div class="border-t pt-6">
+                    <button 
+                        type="button" 
+                        id="toggleAdvanced" 
+                        class="flex items-center justify-between w-full text-left font-semibold text-gray-700 hover:text-blue-600 transition-colors"
+                    >
+                        <span class="flex items-center">
+                            <i class="fas fa-cog mr-2 text-gray-500"></i>
+                            Advanced Options
+                        </span>
+                        <i id="advancedIcon" class="fas fa-chevron-down transition-transform duration-200"></i>
+                    </button>
+                    
+                    <div id="advancedOptions" class="collapse-transition collapse-hidden mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg">
+                            <!-- Crawling Limits -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 mb-3">Crawling Limits</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="max_pages" class="block text-sm text-gray-600 mb-1">Max Pages</label>
+                                        <input type="number" id="max_pages" name="max_pages" value="1000" min="1" max="10000" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="max_depth" class="block text-sm text-gray-600 mb-1">Max Depth</label>
+                                        <input type="number" id="max_depth" name="max_depth" value="5" min="1" max="20" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 mb-3">Performance</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="concurrency" class="block text-sm text-gray-600 mb-1">Concurrency</label>
+                                        <input type="number" id="concurrency" name="concurrency" value="8" min="1" max="20" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="delay" class="block text-sm text-gray-600 mb-1">Delay (seconds)</label>
+                                        <input type="number" id="delay" name="delay" value="0" min="0" max="10" step="0.5" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- URL Filters -->
+                            <div class="md:col-span-2">
+                                <h4 class="font-semibold text-gray-700 mb-3">URL Filters</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="include_patterns" class="block text-sm text-gray-600 mb-1">Include Patterns (one per line)</label>
+                                        <textarea id="include_patterns" name="include_patterns" rows="3" 
+                                                  placeholder="docs&#10;guides&#10;api" 
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="exclude_patterns" class="block text-sm text-gray-600 mb-1">Exclude Patterns (one per line)</label>
+                                        <textarea id="exclude_patterns" name="exclude_patterns" rows="3" 
+                                                  placeholder="admin&#10;private&#10;temp" 
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Authentication -->
+                            <div class="md:col-span-2">
+                                <h4 class="font-semibold text-gray-700 mb-3">Authentication (Optional)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="cookies_file" class="block text-sm text-gray-600 mb-1">Cookies File</label>
+                                        <input type="file" id="cookies_file" name="cookies_file" accept=".json,.txt" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="headers_file" class="block text-sm text-gray-600 mb-1">Headers File</label>
+                                        <input type="file" id="headers_file" name="headers_file" accept=".json" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Options -->
+                            <div class="md:col-span-2">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="respect_robots" name="respect_robots" checked class="rounded">
+                                        <span class="text-sm text-gray-700">Respect robots.txt</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="sitemap_first" name="sitemap_first" checked class="rounded">
+                                        <span class="text-sm text-gray-700">Sitemap first</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="add_toc" name="add_toc" checked class="rounded">
+                                        <span class="text-sm text-gray-700">Add TOC</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" id="incremental" name="incremental" class="rounded">
+                                        <span class="text-sm text-gray-700">Incremental</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between">
+                    <button type="button" id="previewBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>Preview
+                    </button>
+                    <button type="submit" id="startBtn" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-all duration-200 font-semibold">
+                        <i id="startIcon" class="fas fa-play mr-2"></i>
+                        <span id="startText">Start Crawling</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Progress Section (Hidden by default) -->
+        <div id="progressSection" class="bg-white rounded-xl card-shadow p-6 mb-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-chart-line mr-2 text-blue-500"></i>Crawl Progress
+            </h3>
+            
+            <div class="space-y-4">
+                <!-- Overall Progress -->
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Overall Progress</span>
+                        <span id="progressText">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-green-600" id="pagesCount">0</div>
+                        <div class="text-xs text-green-600">Pages Crawled</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-blue-600" id="cachedCount">0</div>
+                        <div class="text-xs text-blue-600">Cached</div>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-red-600" id="failedCount">0</div>
+                        <div class="text-xs text-red-600">Failed</div>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-purple-600" id="sizeCount">0 KB</div>
+                        <div class="text-xs text-purple-600">Total Size</div>
+                    </div>
+                </div>
+
+                <!-- Current Activity -->
+                <div id="currentActivity" class="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span id="activityText">Ready to start...</span>
+                </div>
+
+                <!-- Stop Button -->
+                <div class="text-center">
+                    <button type="button" id="stopBtn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-stop mr-2"></i>Stop Crawling
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section (Hidden by default) -->
+        <div id="resultsSection" class="bg-white rounded-xl card-shadow p-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>Crawl Results
+            </h3>
+            
+            <div id="resultsContent">
+                <!-- Results will be populated here -->
+            </div>
+
+            <div class="mt-6 pt-6 border-t flex justify-between">
+                <button type="button" id="downloadBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Download Files
+                </button>
+                <button type="button" id="newCrawlBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>New Crawl
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <i class="fas fa-file-markdown"></i>
+                <span class="font-semibold">Site2MD</span>
+            </div>
+            <p class="text-gray-400 text-sm">
+                Convert any website to beautiful Markdown files
+            </p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

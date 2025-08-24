@@ -1,0 +1,1 @@
+web: python -m site2md.web.main --host 0.0.0.0 --port $PORT
