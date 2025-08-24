@@ -1,0 +1,39 @@
+# Core dependencies for Site2MD web interface
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+jinja2>=3.1.0
+python-multipart>=0.0.6
+websockets>=12.0
+
+# CLI and Configuration
+typer[all]>=0.9.0
+rich>=13.0.0
+pyyaml>=6.0.0
+
+# HTTP Client and Networking
+httpx[http2]>=0.25.0
+anyio>=3.7.0,<4.0.0
+brotli>=1.0.0
+
+# HTML Parsing and Content Extraction
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+trafilatura>=1.6.0
+readability-lxml>=0.8.0
+
+# Markdown Conversion
+markdownify>=0.11.0
+
+# URL Processing
+tldextract>=5.0.0
+urllib3>=2.0.0
+
+# Robots.txt Parsing
+requests>=2.28.0
+
+# Database
+aiosqlite>=0.19.0
+
+# Utilities
+python-dateutil>=2.8.0
+click>=8.0.0
